@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter as Router } from 'react-router-dom'; // <-- make sure BrowserRouter is here
 
 import './index.css';
 import App from './App';
@@ -9,9 +8,7 @@ import reportWebVitals from './reportWebVitals';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <Router>  {/* Wrap your app in BrowserRouter */}
       <App />
-  </Router>,
   </React.StrictMode>
 );
 

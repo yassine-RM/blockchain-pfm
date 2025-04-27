@@ -10,15 +10,15 @@ export default function Exercice() {
 
   
   useEffect(() => {
-    if (!exercices[id] || isNaN(id)) {
+    if (!exercices[id-1] || isNaN(id-1)) {
       window.location.href = '/';
       return;
     }
    
     const exercice = {
       id,
-      name: `Exercice ${id} : ${exercices[id].name}`,
-      description: `Details - ${exercices[id].description}…`
+      title: `Exercice ${id} : ${exercices[id-1].title}`,
+      description: `Details - ${exercices[id-1].description}…`
     };
 
     setExercice(exercice);
@@ -29,7 +29,7 @@ export default function Exercice() {
   return (
     <div className="p-8">
       <Link to="/" className="text-blue-500">&larr; Back to list</Link>
-      <h1 className="mt-4 text-3xl font-bold">{exercice.name}</h1>
+      <h1 className="mt-4 text-3xl font-bold">{exercice.title}</h1>
       <p className="mt-2">{exercice.description}</p>
     </div>
   );
