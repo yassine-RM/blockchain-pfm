@@ -11,13 +11,27 @@ services:
 
   frontend:
     build:
-      context: .
-      dockerfile: frontend/Dockerfile
+      context: ./frontend
+      dockerfile: Dockerfile
     ports:
       - "3000:3000"
     volumes:
       - ./frontend:/app
+      - /app/node_modules           # anonymous volume for node_modules
+
     depends_on:
       - ganache
     environment:
-      - REACT_APP_GANACHE_URL=http://localhost:8545
+      - REACT_APP_GANACHE_URL=http://ganache:8545
+      - CHOKIDAR_USEPOLLING=true
+
+  blockchain:
+    build:
+      context: ./blockchain
+      dockerfile: Dockerfile
+    volumes:
+      - ./blockchain:/app
+    depends_on:
+      - ganache
+    entrypoint: sh
+    tty: true

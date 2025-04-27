@@ -1,17 +1,17 @@
-# Use official Node.js image
+# Dockerfile for React Frontend
 FROM node:18-alpine
 
 # Create app directory
-WORKDIR /usr/src/app
+WORKDIR /app
 
-# Install Create-React-App globally
-RUN npm install -g create-react-app
-
-RUN create-react-app .
+# Install app dependencies
+COPY ./package*.json ./
 
 RUN npm install
 
+
+# Expose the port the app runs on
 EXPOSE 3000
 
-# Default command: Start a shell
-CMD [ "npm", "start" ]
+# Start the app
+CMD ["npm", "start"]
