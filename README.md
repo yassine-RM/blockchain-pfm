@@ -115,7 +115,3 @@ Ce TP a pour objectif d'introduire les bases du langage Solidity à travers une 
 - Utiliser les tableaux dynamiques et les fonctions `require()`.
 - Explorer la programmation orientée objet en Solidity.
 
----
-
-## 📁 Structure Recommandée du Projet
-
