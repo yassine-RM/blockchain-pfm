@@ -1,4 +1,5 @@
 // src/App.jsx
+
 import { BrowserRouter as Router, Routes, Route, useParams, useNavigate } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -30,7 +31,10 @@ const componentMap = {
   8: Exercice8,
 };
 
+
+
 function App() {
+
   return (
     <Router>
       <Header />

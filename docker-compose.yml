@@ -8,6 +8,7 @@ services:
     command:
       - --accounts=10
       - --defaultBalanceEther=1000
+      - --gasLimit=12000000
 
   frontend:
     build:
@@ -16,9 +17,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./frontend:/app
-      - /app/node_modules           # anonymous volume for node_modules
-
+      - ./frontend:/app 
     depends_on:
       - ganache
     environment:
@@ -31,6 +30,8 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./blockchain:/app
+      - ./frontend/src/contracts:/app/frontend/src/contracts  # <-- Add this
+
     depends_on:
       - ganache
     entrypoint: sh

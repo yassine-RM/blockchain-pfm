@@ -1,28 +1,78 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import getWeb3 from '../utils/web3';
+import GestionChaines from '../contracts/GestionChaines.json';
 
 function Exercice3() {
   const [string1, setString1] = useState('');
   const [string2, setString2] = useState('');
   const [result, setResult] = useState('');
+  const [message, setMessage] = useState('');
+  const [contract, setContract] = useState(null);
+  const [account, setAccount] = useState(null);
 
-  const handleCompare = () => {
-    setResult(string1 === string2 ? '✅ Strings are equal' : '❌ Strings are different');
+  useEffect(() => {
+    const loadBlockchain = async () => {
+      try {
+        const web3 = await getWeb3();
+        const accounts = await web3.eth.getAccounts();
+        const networkId = await web3.eth.net.getId();
+        const deployedNetwork = GestionChaines.networks[networkId];
+
+        if (!deployedNetwork) {
+          throw new Error("Contract not deployed to the detected network.");
+        }
+
+        const instance = new web3.eth.Contract(
+          GestionChaines.abi,
+          deployedNetwork.address
+        );
+
+        setContract(instance);
+        setAccount(accounts[0]);
+      } catch (err) {
+        console.error("Failed to load web3 or contract", err);
+      }
+    };
+
+    loadBlockchain();
+  }, []);
+
+  const handleSetMessage = async () => {
+    if (!contract) return;
+    await contract.methods.setMessage(string1).send({ from: account });
+    setResult(`Message set to: "${string1}"`);
   };
 
-  const handleSplit = () => {
-    setResult(`String 1 Split: [${string1.split('').join(', ')}]`);
+  const handleGetMessage = async () => {
+    if (!contract) return;
+    const msg = await contract.methods.getMessage().call();
+    setMessage(msg);
+    setResult(`Stored message: "${msg}"`);
   };
 
-  const handleConcat = () => {
-    setResult(`Concatenated: ${string1 + string2}`);
+  const handleConcat = async () => {
+    if (!contract) return;
+    const output = await contract.methods.concatener(string1, string2).call();
+    setResult(`Concatenated: ${output}`);
   };
 
-  const handleGetSize = () => {
-    setResult(`Size: String 1 = ${string1.length}, String 2 = ${string2.length}`);
+  const handleConcatWithStored = async () => {
+    if (!contract) return;
+    const output = await contract.methods.concatenerAvec(string2).call();
+    setResult(`Message + String2: ${output}`);
   };
 
-  const handleGetMessage = () => {
-    setResult(`Message: "${string1}" | "${string2}"`);
+  const handleLength = async () => {
+    if (!contract) return;
+    const len1 = await contract.methods.longueur(string1).call();
+    const len2 = await contract.methods.longueur(string2).call();
+    setResult(`Length: String 1 = ${len1}, String 2 = ${len2}`);
+  };
+
+  const handleCompare = async () => {
+    if (!contract) return;
+    const isEqual = await contract.methods.comparer(string1, string2).call();
+    setResult(isEqual ? '✅ Strings are equal' : '❌ Strings are different');
   };
 
   return (
@@ -44,21 +94,24 @@ function Exercice3() {
         />
       </div>
 
-      <div className="flex flex-wrap gap-4 justify-center mt-6">
-        <button onClick={handleCompare} className="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600">
-          Compare
+      <div className="flex flex-wrap gap-3 justify-center mt-6">
+        <button onClick={handleSetMessage} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+          Set Message
         </button>
-        <button onClick={handleSplit} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
-          Split
+        <button onClick={handleGetMessage} className="bg-cyan-500 text-white px-4 py-2 rounded-lg hover:bg-cyan-600">
+          Get Message
         </button>
         <button onClick={handleConcat} className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600">
-          Concat
+          Concat (A + B)
         </button>
-        <button onClick={handleGetSize} className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600">
-          Get Size
+        <button onClick={handleConcatWithStored} className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600">
+          Concat with Stored Message
         </button>
-        <button onClick={handleGetMessage} className="bg-pink-500 text-white px-4 py-2 rounded-lg hover:bg-pink-600">
-          Get Message
+        <button onClick={handleLength} className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600">
+          Get Length
+        </button>
+        <button onClick={handleCompare} className="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600">
+          Compare Strings
         </button>
       </div>
 

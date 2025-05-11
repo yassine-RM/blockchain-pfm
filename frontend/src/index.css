@@ -2,8 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@import "flowbite/dist/flowbite.css";
-
 
 body {
   margin: 0;

@@ -7,7 +7,7 @@ function Header() {
             Project fin module (PFM)
         </h1>
         <p className="text-center">
-            Using <span className="underline font-bold">Solidity</span>, <span className="underline font-bold">Truffle</span>, <span className="underline font-bold">ReactJs</span> and <span className="underline font-bold">Tailwind CSS</span>
+            Using <span className="underline font-bold">Solidity</span>, <span className="underline font-bold">Truffle</span>, <span className="underline font-bold">ReactJs</span>, <span className="underline font-bold">Tailwind CSS</span> and <span className="underline font-bold">Docker</span>
         </p>
     </div>
   )

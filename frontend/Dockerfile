@@ -1,17 +1,19 @@
-# Dockerfile for React Frontend
-FROM node:18-alpine
+FROM node:18
 
-# Create app directory
 WORKDIR /app
 
-# Install app dependencies
-COPY ./package*.json ./
+# Copy package.json and package-lock.json first to install dependencies
+COPY package*.json ./
 
-RUN npm install
+# Install dependencies
+RUN npm install --verbose
 
+# Now copy the rest of your application
+COPY . .
 
-# Expose the port the app runs on
+# Ensure OpenSSL legacy provider for Webpack compatibility
+ENV NODE_OPTIONS=--openssl-legacy-provider
+
 EXPOSE 3000
 
-# Start the app
 CMD ["npm", "start"]

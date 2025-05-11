@@ -1,6 +1,7 @@
 // src/components/ExerciceLayout.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
+import BlockchainInfo from '../components/BlockchainInfo';
 
 export default function ExerciceLayout({exercice,component}) {
 
@@ -15,15 +16,17 @@ export default function ExerciceLayout({exercice,component}) {
             <p className="text-gray-500">
                 {exercice.description || 'No description available'}
             </p>
-            <main className="min-h-screen p-5 w-full">
+            <main className="p-5 w-full">
                {component}
             </main>
 
-            <div className="flex justify-start items-center mt-4">
+            <div className="flex justify-start items-center my-4">
                 <Link to="/" className="text-blue-500 underline">
                     &larr; Back to exercices list
                 </Link>
             </div>
+
+            <BlockchainInfo/>
         </div>
     ))
   );
