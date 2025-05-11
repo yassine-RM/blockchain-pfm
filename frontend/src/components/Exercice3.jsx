@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import getWeb3 from '../utils/web3';
 import GestionChaines from '../contracts/GestionChaines.json';
+import BlockchainInfo from './BlockchainInfo';
+
 
 function Exercice3() {
   const [string1, setString1] = useState('');
@@ -9,6 +11,20 @@ function Exercice3() {
   const [message, setMessage] = useState('');
   const [contract, setContract] = useState(null);
   const [account, setAccount] = useState(null);
+      const [blockchainInfo, setBlockchainInfo] = useState({
+        url: 'HTTP://127.0.0.1:7545',
+        networkId: null,
+        contractAddress: null,
+        account: null,
+        lastBlock: {
+          number: null,
+          hash: null,
+          timestamp: null,
+          transactions: [],
+          miner: null,
+          parentHash: null,
+        }
+      });
 
   useEffect(() => {
     const loadBlockchain = async () => {
@@ -26,6 +42,28 @@ function Exercice3() {
           GestionChaines.abi,
           deployedNetwork.address
         );
+
+        const latestBlock = await web3.eth.getBlock('latest');
+        const blockNumber = Number(latestBlock.number);
+        const blockTimestamp = Number(latestBlock.timestamp) * 1000;
+        const readableTimestamp = new Date(blockTimestamp).toLocaleString();
+        const blockHash = latestBlock.hash;
+        const parentHash = latestBlock.parentHash;
+    
+        setBlockchainInfo(prev => ({
+          ...prev,
+          networkId: networkId.toString(),
+          contractAddress: deployedNetwork.address,
+          account: accounts[0],
+          lastBlock: {
+            number: blockNumber,
+            hash: blockHash,
+            timestamp: readableTimestamp,
+            parentHash: parentHash,
+            transactions: latestBlock.transactions,
+            miner: latestBlock.miner || 'N/A'
+          }
+        }));
 
         setContract(instance);
         setAccount(accounts[0]);
@@ -76,6 +114,7 @@ function Exercice3() {
   };
 
   return (
+    <>
     <div className="max-w-xl mx-auto bg-white p-8 rounded-2xl shadow-lg mt-8 space-y-6">
       <div className="space-y-4">
         <input
@@ -121,6 +160,9 @@ function Exercice3() {
         </div>
       )}
     </div>
+
+<BlockchainInfo blockchainInfo={blockchainInfo} />
+</>
   );
 }
 

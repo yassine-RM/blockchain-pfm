@@ -1,7 +1,6 @@
 // src/components/ExerciceLayout.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
-import BlockchainInfo from '../components/BlockchainInfo';
 
 export default function ExerciceLayout({exercice,component}) {
 
@@ -10,6 +9,15 @@ export default function ExerciceLayout({exercice,component}) {
     
     (exercice && (
         <div className="App">
+            <div className="flex justify-start items-center my-4">
+            <Link
+                to="/"
+                className="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200"
+                >
+                <span className="mr-2">←</span> Back to Exercises List
+            </Link>
+
+            </div>
             <h1 className="mt-4 text-2xl font-bold">
                 {exercice.title || 'Exercice'}
             </h1>
@@ -20,13 +28,6 @@ export default function ExerciceLayout({exercice,component}) {
                {component}
             </main>
 
-            <div className="flex justify-start items-center my-4">
-                <Link to="/" className="text-blue-500 underline">
-                    &larr; Back to exercices list
-                </Link>
-            </div>
-
-            <BlockchainInfo/>
         </div>
     ))
   );

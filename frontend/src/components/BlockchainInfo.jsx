@@ -7,6 +7,7 @@ function BlockchainDashboard() {
   const [balance, setBalance] = useState('');
   const [network, setNetwork] = useState('');
   const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchBlockchainData = async () => {
@@ -32,12 +33,13 @@ function BlockchainDashboard() {
         setBalance(fromWei(ethBalance, 'ether'));
         setNetwork(`${networkNames[netId] || 'Unknown'} (ID: ${netId})`);
 
-        // Load last 5 transactions manually from latest blocks
-        const latestBlock = await web3Instance.eth.getBlockNumber();
+        // Load the latest 5 transactions from the last 20 blocks
+        const latestBlock = Number(await web3Instance.eth.getBlockNumber());
         const txs = [];
-
-        for (let i = latestBlock; i > latestBlock - 20 && txs.length < 5; i--) {
-          const block = await web3Instance.eth.getBlock(i, true); // include transactions
+        
+        if (latestBlock )
+        for (let i = latestBlock; i >= 0 && i > latestBlock - 20 && txs.length < 5; i--) {
+          const block = await web3Instance.eth.getBlock(i, true);
           if (block && block.transactions) {
             block.transactions.forEach(tx => {
               if (tx.from.toLowerCase() === accounts[0].toLowerCase() || (tx.to && tx.to.toLowerCase() === accounts[0].toLowerCase())) {
@@ -47,14 +49,21 @@ function BlockchainDashboard() {
           }
         }
 
-        setTransactions(txs.slice(0, 5));
+        setTransactions(txs.slice(0, 5)); // Only show 5 latest transactions
+        setLoading(false); // Set loading state to false when data is fetched
+
       } catch (err) {
         console.error('Blockchain data fetch error:', err);
+        setLoading(false); // Set loading state to false in case of error
       }
     };
 
     fetchBlockchainData();
   }, []);
+
+  if (loading) {
+    return <div>Loading blockchain data...</div>;
+  }
 
   return (
     <div className="bg-gray-50 p-6 rounded-xl shadow-md mb-8 space-y-4">
@@ -72,6 +81,7 @@ function BlockchainDashboard() {
             <div><strong>From:</strong> {tx.from}</div>
             <div><strong>To:</strong> {tx.to || 'Contract Creation'}</div>
             <div><strong>Value:</strong> {web3.utils.fromWei(tx.value, 'ether')} ETH</div>
+            <div><strong>Block Number:</strong> {tx.blockNumber}</div>
           </li>
         ))}
       </ul>

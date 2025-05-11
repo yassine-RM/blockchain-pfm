@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import getWeb3 from '../utils/web3';
 import Addition from '../contracts/Addition.json';
+import BlockchainInfo from './BlockchainInfo';
 
 function Exercice1() {
   const [contract, setContract] = useState(null);
@@ -11,6 +12,21 @@ function Exercice1() {
   const [x, setX] = useState('');
   const [y, setY] = useState('');
   const [result, setResult] = useState('');
+
+  const [blockchainInfo, setBlockchainInfo] = useState({
+    url: 'HTTP://127.0.0.1:7545',
+    networkId: null,
+    contractAddress: null,
+    account: null,
+    lastBlock: {
+      number: null,
+      hash: null,
+      timestamp: null,
+      transactions: [],
+      miner: null,
+      parentHash: null,
+    }
+  });
 
   useEffect(() => {
     const init = async () => {
@@ -29,10 +45,37 @@ function Exercice1() {
           deployedNetwork.address
         );
 
+        const latestBlock = await web3.eth.getBlock('latest');
+
+        // Ensure BigInt values are converted to numbers or strings for use
+        const blockNumber = Number(latestBlock.number); // Convert BigInt to number
+        const blockTimestamp = Number(latestBlock.timestamp) * 1000; // Convert timestamp to number first, then multiply
+        const readableTimestamp = new Date(blockTimestamp).toLocaleString(); // Now convert to readable date
+        const blockHash = latestBlock.hash;
+        const parentHash = latestBlock.parentHash;
+
+        setBlockchainInfo(prev => ({
+          ...prev,
+          networkId: networkId.toString(),
+          contractAddress: deployedNetwork.address,
+          account: accounts[0],
+          lastBlock: {
+            number: blockNumber, // Store as number
+            hash: blockHash, // Store hash as string
+            timestamp: readableTimestamp, // Store as readable string
+            parentHash: parentHash, // Store parentHash as string
+            transactions: latestBlock.transactions,
+            miner: latestBlock.miner || 'N/A' // Handle missing miner value
+          }
+        }));
+
         setContract(instance);
         setAccount(accounts[0]);
+
+        
       } catch (error) {
         console.error("Error loading web3 or contract:", error);
+        setResult('❗ Failed to load contract or web3.');
       }
     };
 
@@ -44,30 +87,47 @@ function Exercice1() {
       setResult('❗ Please enter both a and b.');
       return;
     }
-    await contract.methods.setValues(a, b).send({ from: account });
-    setResult(`✅ Values set: a = ${a}, b = ${b}`);
+    try {
+      await contract.methods.setValues(a, b).send({ from: account });
+      setResult(`✅ Values set: a = ${a}, b = ${b}`);
+      setA('');
+      setB('');
+    } catch (error) {
+      setResult('❗ Error setting values.');
+    }
   };
-  
+
   const handleAddition1 = async () => {
     if (!contract) return;
-    const sum = await contract.methods.addition1().call();
-    setResult(`Sum of state variables: ${sum}`);
+    try {
+      const sum = await contract.methods.addition1().call();
+      setResult(`Sum of state variables: ${sum}`);
+    } catch (error) {
+      setResult('❗ Error calling addition1.');
+    }
   };
-  
+
   const handleAddition2 = async () => {
     if (!contract || x === '' || y === '') {
       setResult('❗ Please enter both x and y.');
       return;
     }
-    const sum = await contract.methods.addition2(x, y).call();
-    setResult(`Sum of ${x} and ${y}: ${sum}`);
+    try {
+      const sum = await contract.methods.addition2(x, y).call();
+      setResult(`Sum of ${x} and ${y}: ${sum}`);
+      setX('');
+      setY('');
+    } catch (error) {
+      setResult('❗ Error calling addition2.');
+    }
   };
-  
 
   return (
+    <>
     <div className="max-w-xl mx-auto bg-white p-8 rounded-2xl shadow-lg mt-8 space-y-6">
       <h2 className="text-xl font-bold text-center">Exercise 1: Addition</h2>
 
+      {/* Set a and b values */}
       <div className="grid grid-cols-2 gap-4">
         <input
           type="number"
@@ -85,14 +145,23 @@ function Exercice1() {
         />
       </div>
 
-      <button onClick={handleSetValues} className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600">
+      {/* Button to set a and b values */}
+      <button
+        onClick={handleSetValues}
+        className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
+      >
         Set a & b
       </button>
 
-      <button onClick={handleAddition1} className="w-full bg-indigo-500 text-white py-2 rounded hover:bg-indigo-600">
+      {/* Button to perform addition1 */}
+      <button
+        onClick={handleAddition1}
+        className="w-full bg-indigo-500 text-white py-2 rounded hover:bg-indigo-600"
+      >
         addition1() – Sum of a and b
       </button>
 
+      {/* Input for x and y */}
       <div className="grid grid-cols-2 gap-4">
         <input
           type="number"
@@ -110,16 +179,23 @@ function Exercice1() {
         />
       </div>
 
-      <button onClick={handleAddition2} className="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600">
+      {/* Button to perform addition2 */}
+      <button
+        onClick={handleAddition2}
+        className="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600"
+      >
         addition2(x, y)
       </button>
 
+      {/* Displaying the result */}
       {result && (
         <div className="mt-4 text-center bg-gray-100 p-4 rounded-lg font-medium text-gray-700">
           {result}
         </div>
       )}
     </div>
+    <BlockchainInfo blockchainInfo={blockchainInfo} />
+    </>
   );
 }
 
